@@ -1,39 +1,64 @@
-// import { Given, When, Then } from "@cucumber/cucumber";
-// import { expect } from "@playwright/test";
-// import { getPage } from "../hooks/hooks"; // Assume you have a hooks file returning the page
+import { Given, When, Then } from "@cucumber/cucumber";
+import { expect } from "@playwright/test";
+import { Page } from "playwright";
+import { getPage } from "../hooks/hooks";
 
-// let page = getPage();
+let page: Page;
 
-// Given("I open the portfolio website", async function () {
-//   page = this.page; // Use the page from hooks
-//   await page.goto("http://localhost:3001/");
-// });
+// ---------- Base Navigation ----------
 
-// Then("I should see the {string} link", async function (linkName: string) {
-//   await expect(page.getByRole('link', { name: linkName })).toBeVisible();
-// });
+Given("I open the portfolio website", async function () {
+  page = getPage ? getPage() : this.page;
+  await page.goto("http://localhost:3000/");
+});
 
-// When("I click the {string} link", async function (linkName: string) {
-//   await page.getByRole('link', { name: linkName, exact: true }).click();
-// });
+// ---------- Section Navigation ----------
 
-// Then("I should see the heading {string}", async function (heading: string) {
-//   await expect(page.getByRole('heading', { name: heading })).toBeVisible();
-// });
+When("I click on {string} link", async function (linkName: string) {
+  const link = page.getByRole("link", { name: linkName, exact: true });
+  await link.scrollIntoViewIfNeeded();
+  await link.click();
+});
 
-// Then("I should see the profile image {string}", async function (altText: string) {
-//   await expect(page.getByRole('img', { name: altText })).toBeVisible();
-// });
+Then("I should see the {string} link visible", async function (linkName: string) {
+  const link = page.getByRole("link", { name: linkName, exact: true });
+  await expect(link).toBeVisible();
+});
 
-// Then("I should see the contact number {string}", async function (number: string) {
-//   await expect(page.getByRole('link', { name: number })).toBeVisible();
-// });
+Then("I should see the {string} heading", async function (heading: string) {
+  const headingLocator = page.getByRole("heading", { name: heading });
+  await headingLocator.scrollIntoViewIfNeeded();
+  await expect(headingLocator).toBeVisible();
+});
 
-// When("I click the {string} button and select {string}", async function (buttonName: string, menuItem: string) {
-//   await page.getByRole('button', { name: buttonName }).click();
-//   await page.getByRole('menuitem', { name: menuItem }).click();
-// });
+Then("I should see the {string} image", async function (altText: string) {
+  const image = page.getByRole("img", { name: altText });
+  await image.scrollIntoViewIfNeeded();
+  await expect(image).toBeVisible();
+});
 
-// Then("I should see text {string}", async function (text: string) {
-//   await expect(page.getByText(text)).toBeVisible();
-// });
+// ---------- Services Menu ----------
+
+When("I open Services and click {string}", async function (menuItem: string) {
+  const servicesButton = page.getByRole("button", { name: "Services" });
+  await servicesButton.scrollIntoViewIfNeeded();
+  await servicesButton.click();
+
+  const menuOption = page.getByRole("menuitem", { name: menuItem });
+  await menuOption.scrollIntoViewIfNeeded();
+  await menuOption.click();
+});
+
+Then("I should see the {string} text", async function (expectedText: string) {
+  const textLocator = page.getByText(expectedText, { exact: false });
+  await textLocator.scrollIntoViewIfNeeded();
+  await expect(textLocator).toBeVisible();
+});
+
+// ---------- Generic Page/Section Check ----------
+// Covers Blog, Testimonials, Team, etc.
+Then("I should see the {string} page or section", async function (section: string) {
+  const sectionLocator = page.getByText(new RegExp(section, "i"));
+  await sectionLocator.scrollIntoViewIfNeeded();
+  await expect(sectionLocator).toBeVisible();
+});

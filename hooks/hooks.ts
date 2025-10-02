@@ -6,7 +6,7 @@ import path from "path";
 // --------------------
 // Global timeout (e.g., 2 minutes)
 // --------------------
-setDefaultTimeout(115 * 1000); // 120s
+setDefaultTimeout(120 * 1000); // 120s
 
 // Global objects (shared between steps)
 let browser: Browser;
@@ -26,7 +26,7 @@ Before(async function () {
     fs.mkdirSync(videoDir, { recursive: true });
   }
 
-  browser = await chromium.launch({ headless: true, slowMo: 1000 });
+  browser = await chromium.launch({ headless: true, slowMo: 700 });
   context = await browser.newContext({
     viewport: { width: 1366, height: 768 },
     recordVideo: {
